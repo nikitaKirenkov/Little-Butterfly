@@ -56,6 +56,8 @@
 			<Add directory="C:/SFML-2.4.2/lib" />
 		</Linker>
 		<Unit filename="background.hpp" />
+		<Unit filename="config.ini" />
+		<Unit filename="entity.hpp" />
 		<Unit filename="font.ttf" />
 		<Unit filename="functions.hpp" />
 		<Unit filename="main.cpp" />

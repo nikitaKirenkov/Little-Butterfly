@@ -30,7 +30,7 @@ public:
         {
             Star star(texture);
             stars.push_back(star);
-            stars[i].createNew(speedMult, lowerScaleLimit, upperScaleLimit, windowHeight, windowWidth, true);
+            stars[i].createNew(speedMult, lowerScaleLimit, upperScaleLimit, windowWidth, windowHeight, true);
         }
     }
 
@@ -40,7 +40,7 @@ public:
         {
             stars[i].sprite.move(0, stars[i].speed * mainTime);
             stars[i].y += stars[i].speed * mainTime;
-            if (stars[i].y > windowHeight + 100) stars[i].createNew(speedMult, lowerScaleLimit, upperScaleLimit, windowWidth);
+            if (stars[i].y > windowHeight + 10) stars[i].createNew(speedMult, lowerScaleLimit, upperScaleLimit, windowWidth);
             window.draw(stars[i].sprite);
         }
     }

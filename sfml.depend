@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1493727603 source:c:\users\admin\documents\codeblocks\sfml\main.cpp
+1493811799 source:c:\users\admin\documents\codeblocks\sfml\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<fstream>
@@ -397,7 +397,7 @@
 
 1493617725 c:\users\admin\documents\codeblocks\sfml\entity.hpp
 
-1493727627 c:\users\admin\documents\codeblocks\sfml\background.hpp
+1493804062 c:\users\admin\documents\codeblocks\sfml\background.hpp
 	<SFML/Graphics.hpp>
 	<vector>
 	"functions.hpp"
@@ -406,5 +406,6 @@
 	<stdio.h>
 	<sstream>
 
-1493633672 c:\users\admin\documents\codeblocks\sfml\player.hpp
+1493812804 c:\users\admin\documents\codeblocks\sfml\player.hpp
+	<SFML/Graphics.hpp>
 

@@ -34,14 +34,23 @@ int main()
     window.setVerticalSyncEnabled(verticalSyncEnabled);
 
     Clock mainClock, FPSClock;
-    float mainTime, FPSTimer;
+    float mainTime;
+    int FPS = 0;
 
     Font font;
     font.loadFromFile("font.ttf");
+    Text FPSCounter;
+    FPSCounter.setFont(font);
+    FPSCounter.setFillColor(Color::Red);
+    FPSCounter.setPosition(10, 10);
 
     Image starsImage;
     starsImage.loadFromFile("images/stars.png");
-    Background background(starsImage, 20, 0.6, 10, 15, window);
+    Background background(starsImage, 60, 0.6, 10, 15, window);
+
+    Image playerImage;
+    playerImage.loadFromFile("images/player.png");
+    Player player(playerImage, 7, 50, 0.6, 10, 100, window);
 
     while (window.isOpen())
     {
@@ -57,8 +66,20 @@ int main()
 
         window.clear();
         background.update(mainTime);
-        window.display();
+        player.update(mainTime);
 
+        if (FPSCounterEnabled)
+        {
+            FPS++;
+            if (FPSClock.getElapsedTime().asMilliseconds() >= 1000)
+            {
+                FPSCounter.setString("FPS: " + intToString(FPS));
+                FPS = 0;
+                FPSClock.restart();
+            }
+            window.draw(FPSCounter);
+        }
+        window.display();
     }
 
     return 0;
