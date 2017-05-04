@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
+using namespace std;
 using namespace sf;
 
 class Player
@@ -15,7 +17,7 @@ class Player
 
     Clock frameClock;
     int width, height, currentFrame = 0;
-    float x, mousePositionX, currentSpeed = 0, frameTimer;
+    float x, y, mousePositionX, lastMousePositionX = -11, currentSpeed = 0, windowDivider;
 
 public:
 
@@ -23,6 +25,7 @@ public:
     : framesCount(FramesCount), animationSpeed(AnimationSpeed), maxSpeed(MaxSpeed), damage(Damage), maxHealth(MaxHealth), window(Window)
     {
         windowWidth = window.getSize().x;
+        windowDivider = (float)windowWidth / ((float)framesCount * 2 - 1);
         texture.loadFromImage(image);
         sprite.setTexture(texture);
         width = texture.getSize().x / framesCount;
@@ -30,47 +33,17 @@ public:
         sprite.setOrigin(width / 2, height);
         sprite.setTextureRect(IntRect(0, 0, width, height));
         x = windowWidth / 2;
-        sprite.setPosition(x, window.getSize().y - window.getSize().y / 10);
+        y = window.getSize().y - window.getSize().y / 10;
+        sprite.setPosition(x, y);
     }
 
     void update(float &mainTime)
     {
-        mousePositionX = Mouse::getPosition(window).x;
-        frameTimer = frameClock.getElapsedTime().asMilliseconds();
-        currentSpeed = 0;
-        if (mousePositionX < x - 10 && x > 0)
-        {
-            currentSpeed = -maxSpeed * mainTime;
-            if (frameTimer > animationSpeed && currentFrame < framesCount - 1)
-            {
-                if (currentFrame < 0) currentFrame++;
-                currentFrame++;
-                frameClock.restart();
-
-            }
-        }
-        else if (mousePositionX > x + 10 && x < windowWidth)
-        {
-            currentSpeed = maxSpeed * mainTime;
-            if (frameTimer > animationSpeed && currentFrame > -framesCount + 1)
-            {
-                if (currentFrame > 0) currentFrame--;
-                currentFrame--;
-                frameClock.restart();
-            }
-        }
-        else if (frameTimer > animationSpeed)
-        {
-            if (currentFrame > 0) currentFrame--;
-            else if (currentFrame < 0) currentFrame++;
-            frameClock.restart();
-        }
-
-        if (currentFrame < 0) sprite.setTextureRect(IntRect(width * -currentFrame, 0, -width, height));
-        else sprite.setTextureRect(IntRect(width * currentFrame, 0, width, height));
-
-        x += currentSpeed;
-        sprite.move(currentSpeed, 0);
+        x = Mouse::getPosition(window).x;
+        sprite.setPosition(x, y);
+        currentFrame = x / windowDivider;
+        if (currentFrame < framesCount) sprite.setTextureRect(IntRect(width * (framesCount - currentFrame - 1), 0, width, height));
+        else sprite.setTextureRect(IntRect(width * (currentFrame - framesCount + 2), 0, -width, height));
         window.draw(sprite);
     }
 

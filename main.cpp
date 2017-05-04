@@ -32,10 +32,13 @@ int main()
     if (fullScreenEnabled) screenMode = 8;
     RenderWindow window(VideoMode(windowWidth, windowHeight), windowTitle, screenMode);
     window.setVerticalSyncEnabled(verticalSyncEnabled);
+    window.setMouseCursorGrabbed(true);
+    window.setMouseCursorVisible(false);
 
     Clock mainClock, FPSClock;
     float mainTime;
     int FPS = 0;
+    bool gameIsPaused = false;
 
     Font font;
     font.loadFromFile("font.ttf");
@@ -43,6 +46,11 @@ int main()
     FPSCounter.setFont(font);
     FPSCounter.setFillColor(Color::Red);
     FPSCounter.setPosition(10, 10);
+    Text pauseText;
+    pauseText.setFont(font);
+    pauseText.setFillColor(Color::Red);
+    pauseText.setString("PAUSE");
+    pauseText.setPosition(windowWidth / 2 - pauseText.getCharacterSize() * 2, windowHeight / 2);
 
     Image starsImage;
     starsImage.loadFromFile("images/stars.png");
@@ -58,28 +66,37 @@ int main()
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed || (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)) window.close();
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::P)
+            {
+                gameIsPaused = !gameIsPaused;
+                window.draw(pauseText);
+                window.display();
+            }
         }
 
         mainTime = mainClock.getElapsedTime().asMicroseconds();
         mainTime /= 800;
         mainClock.restart();
 
-        window.clear();
-        background.update(mainTime);
-        player.update(mainTime);
-
-        if (FPSCounterEnabled)
+        if (!gameIsPaused)
         {
-            FPS++;
-            if (FPSClock.getElapsedTime().asMilliseconds() >= 1000)
+            window.clear();
+            background.update(mainTime);
+            player.update(mainTime);
+
+            if (FPSCounterEnabled)
             {
-                FPSCounter.setString("FPS: " + intToString(FPS));
-                FPS = 0;
-                FPSClock.restart();
+                FPS++;
+                if (FPSClock.getElapsedTime().asMilliseconds() >= 1000)
+                {
+                    FPSCounter.setString("FPS: " + intToString(FPS));
+                    FPS = 0;
+                    FPSClock.restart();
+                }
+                window.draw(FPSCounter);
             }
-            window.draw(FPSCounter);
+            window.display();
         }
-        window.display();
     }
 
     return 0;
