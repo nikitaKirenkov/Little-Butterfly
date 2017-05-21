@@ -9,28 +9,36 @@ class Player
     Texture texture;
     Sprite sprite;
     int framesCount;
-    float  animationSpeed, maxSpeed;
-    int damage, maxHealth;
+    float maxSpeed, xSpeedDivider, ySpeedDivider;
 
     RenderWindow &window;
-    int windowWidth;
+    int windowWidth, windowHeight;
 
-    Clock frameClock;
     int width, height, currentFrame = 0;
-    float x, y, mousePositionX, lastMousePositionX = -11, currentSpeed = 0, windowDivider;
+    float x, y, xSpeed = 0, ySpeed = 0;
+
+    bool isMoving[4];
+    Clock movingClock[4];
+    int gear[4] = {1, 1, 1, 1};
+    enum
+    {
+        LEFT, RIGHT, UP, DOWN
+    };
 
 public:
 
-    Player(Image &image, int FramesCount, float AnimationSpeed, float MaxSpeed, int Damage, int MaxHealth, RenderWindow &Window)
-    : framesCount(FramesCount), animationSpeed(AnimationSpeed), maxSpeed(MaxSpeed), damage(Damage), maxHealth(MaxHealth), window(Window)
+    Player(Image &image, int FramesCount, float MaxSpeed, RenderWindow &Window)
+    : framesCount(FramesCount), maxSpeed(MaxSpeed), window(Window)
     {
+        xSpeedDivider = maxSpeed / (framesCount - 1);
+        ySpeedDivider = maxSpeed / ((framesCount - 1) * 2);
         windowWidth = window.getSize().x;
-        windowDivider = (float)windowWidth / ((float)framesCount * 2 - 1);
+        windowHeight = window.getSize().y;
         texture.loadFromImage(image);
         sprite.setTexture(texture);
         width = texture.getSize().x / framesCount;
         height = texture.getSize().y;
-        sprite.setOrigin(width / 2, height);
+        sprite.setOrigin(width / 2, height / 2);
         sprite.setTextureRect(IntRect(0, 0, width, height));
         x = windowWidth / 2;
         y = window.getSize().y - window.getSize().y / 10;
@@ -39,11 +47,75 @@ public:
 
     void update(float &mainTime)
     {
-        x = Mouse::getPosition(window).x;
+        if (Keyboard::isKeyPressed(Keyboard::Left))
+        {
+            if (gear[LEFT] < framesCount && movingClock[LEFT].getElapsedTime().asMilliseconds() >= 100)
+            {
+                gear[LEFT]++;
+                movingClock[LEFT].restart();
+            }
+        }
+        else if (gear[LEFT] > 1 && movingClock[LEFT].getElapsedTime().asMilliseconds() >= 100)
+        {
+            gear[LEFT]--;
+            movingClock[LEFT].restart();
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Right))
+        {
+            if (gear[RIGHT] < framesCount && movingClock[RIGHT].getElapsedTime().asMilliseconds() >= 100)
+            {
+                gear[RIGHT]++;
+                movingClock[RIGHT].restart();
+            }
+        }
+        else if (gear[RIGHT] > 1 && movingClock[RIGHT].getElapsedTime().asMilliseconds() >= 100)
+        {
+            gear[RIGHT]--;
+            movingClock[RIGHT].restart();
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Up))
+        {
+            if (gear[UP] < 12 && movingClock[UP].getElapsedTime().asMilliseconds() >= 100)
+            {
+                gear[UP]++;
+                movingClock[UP].restart();
+            }
+        }
+        else if (gear[UP] > 1 && movingClock[UP].getElapsedTime().asMilliseconds() >= 100)
+        {
+            gear[UP]--;
+            movingClock[UP].restart();
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::Down))
+        {
+            if (gear[DOWN] < 12 && movingClock[DOWN].getElapsedTime().asMilliseconds() >= 100)
+            {
+                gear[DOWN]++;
+                movingClock[DOWN].restart();
+            }
+        }
+        else if (gear[DOWN] > 1 && movingClock[DOWN].getElapsedTime().asMilliseconds() >= 100)
+        {
+            gear[DOWN]--;
+            movingClock[DOWN].restart();
+        }
+
+        xSpeed = (xSpeedDivider * (gear[1] - gear[0])) * mainTime;
+        ySpeed = (ySpeedDivider * (gear[3] - gear[2])) * mainTime;
+
+        x += xSpeed; y += ySpeed;
+        if (x < 0 || x > windowWidth) x -= xSpeed;
+        if (y > windowHeight || y < windowHeight / 2) y -= ySpeed;
+
         sprite.setPosition(x, y);
-        currentFrame = x / windowDivider;
-        if (currentFrame < framesCount) sprite.setTextureRect(IntRect(width * (framesCount - currentFrame - 1), 0, width, height));
-        else sprite.setTextureRect(IntRect(width * (currentFrame - framesCount + 2), 0, -width, height));
+
+        currentFrame = gear[0] - gear[1];
+        if (currentFrame < 0) sprite.setTextureRect(IntRect(-currentFrame * width, 0, -width, height));
+        else sprite.setTextureRect(IntRect(currentFrame * width, 0, width, height));
+
         window.draw(sprite);
     }
 

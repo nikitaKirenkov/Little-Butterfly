@@ -42,10 +42,12 @@ int main()
 
     Font font;
     font.loadFromFile("font.ttf");
+
     Text FPSCounter;
     FPSCounter.setFont(font);
     FPSCounter.setFillColor(Color::Red);
     FPSCounter.setPosition(10, 10);
+
     Text pauseText;
     pauseText.setFont(font);
     pauseText.setFillColor(Color::Red);
@@ -54,11 +56,11 @@ int main()
 
     Image starsImage;
     starsImage.loadFromFile("images/stars.png");
-    Background background(starsImage, 60, 0.6, 10, 15, window);
+    Background background(starsImage, 60, 2.6, 10, 15, window);
 
     Image playerImage;
     playerImage.loadFromFile("images/player.png");
-    Player player(playerImage, 7, 50, 0.6, 10, 100, window);
+    Player player(playerImage, 7, 0.6, window);
 
     while (window.isOpen())
     {
