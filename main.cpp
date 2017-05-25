@@ -1,10 +1,13 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <fstream>
+#include <list>
 
 #include "functions.hpp"
 #include "background.hpp"
 #include "player.hpp"
+#include "missiles.hpp"
+#include "enemies.hpp"
 
 using namespace std;
 using namespace sf;
@@ -62,6 +65,18 @@ int main()
     playerImage.loadFromFile("images/player.png");
     Player player(playerImage, 7, 0.6, window);
 
+    list <Missile*> missiles;
+    list <Missile*>::iterator missilesIt;
+
+    list <Enemy*> enemies;
+    list <Enemy*>::iterator enemiesIt;
+
+    Image enemyBodyImage;
+    enemyBodyImage.loadFromFile("images/enemyBody.png");
+    Image enemyCannonImage;
+    enemyCannonImage.loadFromFile("images/enemyCannon.png");
+    enemies.push_back(new Enemy(enemyBodyImage, enemyCannonImage, 0, 300, window));
+
     while (window.isOpen())
     {
         Event event;
@@ -84,7 +99,19 @@ int main()
         {
             window.clear();
             background.update(mainTime);
-            player.update(mainTime);
+            for (missilesIt = missiles.begin(); missilesIt != missiles.end();)
+            {
+                (*missilesIt)->update(mainTime);
+                if (!(*missilesIt)->isAlive) missilesIt = missiles.erase(missilesIt);
+                else missilesIt++;
+            }
+            for (enemiesIt = enemies.begin(); enemiesIt != enemies.end();)
+            {
+                (*enemiesIt)->update(mainTime, missiles, missilesIt);
+                if (!(*enemiesIt)->isAlive) enemiesIt = enemies.erase(enemiesIt);
+                else enemiesIt++;
+            }
+            player.update(mainTime, missiles);
 
             if (FPSCounterEnabled)
             {

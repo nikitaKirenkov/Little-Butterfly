@@ -1,11 +1,14 @@
 # depslib dependency file v1.0
-1495347501 source:c:\users\admin\documents\codeblocks\sfml\main.cpp
+1495728571 source:c:\users\admin\documents\codeblocks\sfml\main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<fstream>
+	<list>
 	"functions.hpp"
 	"background.hpp"
 	"player.hpp"
+	"missiles.hpp"
+	"enemies.hpp"
 
 1486736397 c:\sfml-2.4.2\include\sfml\graphics.hpp
 	<SFML/Window.hpp>
@@ -406,7 +409,16 @@
 	<stdio.h>
 	<sstream>
 
-1495348623 c:\users\admin\documents\codeblocks\sfml\player.hpp
+1495727349 c:\users\admin\documents\codeblocks\sfml\player.hpp
 	<SFML/Graphics.hpp>
 	<iostream>
+	"missiles.hpp"
+
+1495728461 c:\users\admin\documents\codeblocks\sfml\missiles.hpp
+	<SFML/Graphics.hpp>
+
+1495728632 c:\users\admin\documents\codeblocks\sfml\enemies.hpp
+	<SFML/Graphics.hpp>
+	"functions.hpp"
+	"missiles.hpp"
 

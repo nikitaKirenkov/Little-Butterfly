@@ -57,10 +57,12 @@
 		</Linker>
 		<Unit filename="background.hpp" />
 		<Unit filename="config.ini" />
+		<Unit filename="enemies.hpp" />
 		<Unit filename="entity.hpp" />
 		<Unit filename="font.ttf" />
 		<Unit filename="functions.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="missiles.hpp" />
 		<Unit filename="player.hpp" />
 		<Extensions>
 			<code_completion />

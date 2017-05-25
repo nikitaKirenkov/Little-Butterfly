@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+#include "missiles.hpp"
+
 using namespace std;
 using namespace sf;
 
@@ -24,6 +26,8 @@ class Player
     {
         LEFT, RIGHT, UP, DOWN
     };
+    Image bulletImage;
+    Clock shootingClock;
 
 public:
 
@@ -43,9 +47,10 @@ public:
         x = windowWidth / 2;
         y = window.getSize().y - window.getSize().y / 10;
         sprite.setPosition(x, y);
+        bulletImage.loadFromFile("images/defaultMissile.png");
     }
 
-    void update(float &mainTime)
+    void update(float &mainTime, list <Missile*> &missiles)
     {
         if (Keyboard::isKeyPressed(Keyboard::Left))
         {
@@ -117,6 +122,13 @@ public:
         else sprite.setTextureRect(IntRect(currentFrame * width, 0, width, height));
 
         window.draw(sprite);
+
+        if (Keyboard::isKeyPressed(Keyboard::Space) && shootingClock.getElapsedTime().asMilliseconds() > 300)
+        {
+            missiles.push_back(new Missile(bulletImage, 1, 10, x, y - 55, window));
+            cout << missiles.size() << endl;
+            shootingClock.restart();
+        }
     }
 
 };
