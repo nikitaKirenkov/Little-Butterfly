@@ -41,7 +41,7 @@ int main()
     Clock mainClock, FPSClock;
     float mainTime;
     int FPS = 0;
-    bool gameIsPaused = false;
+    bool gameIsPaused = false, gameIsOver = false;
 
     Font font;
     font.loadFromFile("font.ttf");
@@ -61,9 +61,9 @@ int main()
     Text playerStatsCount;
     playerStatsCount.setFont(font);
     playerStatsCount.setFillColor(Color::Red);
-    playerStatsCount.setString("AMMO: 100 HEALTH: 100");
+    playerStatsCount.setString("AMMO: 100 HEALTH: 100 SCORE: 0");
     playerStatsCount.setCharacterSize(24);
-    playerStatsCount.setPosition(windowWidth / 2 - playerStatsCount.getCharacterSize() * 7, windowHeight - windowHeight / 20);
+    playerStatsCount.setPosition(windowWidth / 2 - playerStatsCount.getCharacterSize() * 10, windowHeight - windowHeight / 20);
 
     Image starsImage;
     starsImage.loadFromFile("images/stars.png");
@@ -86,7 +86,6 @@ int main()
     enemyBodyImage.loadFromFile("images/enemyBody.png");
     Image enemyCannonImage;
     enemyCannonImage.loadFromFile("images/enemyCannon.png");
-    enemies.push_back(new Enemy(enemyBodyImage, enemyCannonImage, 0, 300, window));
 
     while (window.isOpen())
     {
@@ -94,19 +93,26 @@ int main()
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed || (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)) window.close();
-            if (event.type == Event::KeyPressed && event.key.code == Keyboard::P)
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::P && !gameIsOver)
             {
                 gameIsPaused = !gameIsPaused;
                 window.draw(pauseText);
                 window.display();
+            }
+            if (gameIsOver && event.type == Event::KeyPressed && event.key.code == Keyboard::Return)
+            {
+                player.reset();
+                enemies.clear();
+                playerMissiles.clear();
+                enemyMissiles.clear();
+                gameIsOver = false;
             }
         }
 
         mainTime = mainClock.getElapsedTime().asMicroseconds();
         mainTime /= 800;
         mainClock.restart();
-
-        if (!gameIsPaused)
+        if (!gameIsPaused && !gameIsOver)
         {
             window.clear();
             background.update(mainTime);
@@ -121,13 +127,21 @@ int main()
                 }
                 window.draw(FPSCounter);
             }
-            playerStatsCount.setString("AMMO: " + intToString(player.ammo) + " HEALTH: " + intToString(player.health));
             window.draw(playerStatsCount);
+            if (enemies.size() == 0)
+            {
+                int enemiesCount = randomNumber(1, 3);
+                for (int i = 1; i <= enemiesCount; i++)
+                {
+                    enemies.push_back(new Enemy(enemyBodyImage, enemyCannonImage, 0, i * windowWidth / enemiesCount - windowWidth / enemiesCount / 2, window));
+                }
+            }
+            int i = 1;
             for (enemiesIt = enemies.begin(); enemiesIt != enemies.end();)
             {
-                (*enemiesIt)->update(mainTime, player, enemyMissiles, playerMissiles, playerMissilesIt);
+                (*enemiesIt)->update(mainTime, windowWidth / enemies.size() * (i - 1), windowWidth / enemies.size() * i, player, enemyMissiles, playerMissiles, playerMissilesIt);
                 if (!(*enemiesIt)->isAlive) enemiesIt = enemies.erase(enemiesIt);
-                else enemiesIt++;
+                else { enemiesIt++; i++; }
             }
             for (playerMissilesIt = playerMissiles.begin(); playerMissilesIt != playerMissiles.end();)
             {
@@ -142,7 +156,13 @@ int main()
                 else enemyMissilesIt++;
             }
             player.update(mainTime, playerMissiles, enemyMissiles, enemyMissilesIt);
-
+            playerStatsCount.setString("AMMO: " + intToString(player.ammo) + " HEALTH: " + intToString(player.health) + " SCORE: " + intToString(player.score));
+            if (!player.isAlive || (player.ammo == 0 && playerMissiles.size() == 0))
+            {
+                gameIsOver = true;
+                pauseText.setString("        GAME OVER\n press enter to restart");
+                window.draw(pauseText);
+            }
 
             window.display();
         }

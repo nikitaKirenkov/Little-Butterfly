@@ -35,7 +35,8 @@ class Player
 public:
 
     float x, y;
-    int ammo = 100, health = 100;
+    int ammo = 100, health = 100, score = 0;
+    bool isAlive = true;
 
     Player(Image &image, int FramesCount, float MaxSpeed, RenderWindow &Window)
     : framesCount(FramesCount), maxSpeed(MaxSpeed), window(Window)
@@ -137,7 +138,7 @@ public:
             }
         }
 
-
+        if (health <= 0) isAlive = false;
         if (hitClock.getElapsedTime().asMilliseconds() > 100) window.draw(sprite);
 
         if (Keyboard::isKeyPressed(Keyboard::Space) && shootingClock.getElapsedTime().asMilliseconds() > 300 && ammo > 0)
@@ -146,6 +147,15 @@ public:
             ammo--;
             shootingClock.restart();
         }
+    }
+
+    void reset()
+    {
+        ammo = 100; health = 100; isAlive = true;
+        x = windowWidth / 2;
+        y = windowHeight - windowHeight / 8;
+        sprite.setPosition(x, y);
+        currentFrame = 0;
     }
 
 };
