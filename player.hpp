@@ -1,3 +1,6 @@
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
+
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
@@ -17,7 +20,7 @@ class Player
     int windowWidth, windowHeight;
 
     int width, height, currentFrame = 0;
-    float x, y, xSpeed = 0, ySpeed = 0;
+    float xSpeed = 0, ySpeed = 0;
 
     bool isMoving[4];
     Clock movingClock[4];
@@ -27,9 +30,12 @@ class Player
         LEFT, RIGHT, UP, DOWN
     };
     Image bulletImage;
-    Clock shootingClock;
+    Clock shootingClock, hitClock;
 
 public:
+
+    float x, y;
+    int ammo = 100, health = 100;
 
     Player(Image &image, int FramesCount, float MaxSpeed, RenderWindow &Window)
     : framesCount(FramesCount), maxSpeed(MaxSpeed), window(Window)
@@ -45,12 +51,12 @@ public:
         sprite.setOrigin(width / 2, height / 2);
         sprite.setTextureRect(IntRect(0, 0, width, height));
         x = windowWidth / 2;
-        y = window.getSize().y - window.getSize().y / 10;
+        y = windowHeight - windowHeight / 8;
         sprite.setPosition(x, y);
         bulletImage.loadFromFile("images/defaultMissile.png");
     }
 
-    void update(float &mainTime, list <Missile*> &missiles)
+    void update(float &mainTime, list <Missile*> &playerMissiles, list <Missile*> &enemyMissiles, list <Missile*>::iterator &enemyMissilesIt)
     {
         if (Keyboard::isKeyPressed(Keyboard::Left))
         {
@@ -113,7 +119,7 @@ public:
 
         x += xSpeed; y += ySpeed;
         if (x < 0 || x > windowWidth) x -= xSpeed;
-        if (y > windowHeight || y < windowHeight / 2) y -= ySpeed;
+        if (y > windowHeight - windowHeight / 8 || y < windowHeight / 2) y -= ySpeed;
 
         sprite.setPosition(x, y);
 
@@ -121,14 +127,27 @@ public:
         if (currentFrame < 0) sprite.setTextureRect(IntRect(-currentFrame * width, 0, -width, height));
         else sprite.setTextureRect(IntRect(currentFrame * width, 0, width, height));
 
-        window.draw(sprite);
-
-        if (Keyboard::isKeyPressed(Keyboard::Space) && shootingClock.getElapsedTime().asMilliseconds() > 300)
+        for (enemyMissilesIt = enemyMissiles.begin(); enemyMissilesIt != enemyMissiles.end(); enemyMissilesIt++)
         {
-            missiles.push_back(new Missile(bulletImage, 1, 10, x, y - 55, window));
-            cout << missiles.size() << endl;
+            if (FloatRect(x - width / 2, y - width / 2, width, height).intersects((*enemyMissilesIt)->getRect()))
+            {
+                hitClock.restart();
+                health -= (*enemyMissilesIt)->damage;
+                (*enemyMissilesIt)->isAlive = false;
+            }
+        }
+
+
+        if (hitClock.getElapsedTime().asMilliseconds() > 100) window.draw(sprite);
+
+        if (Keyboard::isKeyPressed(Keyboard::Space) && shootingClock.getElapsedTime().asMilliseconds() > 300 && ammo > 0)
+        {
+            playerMissiles.push_back(new Missile(bulletImage, 0.4, 0, -1, 10, x, y - 55, window));
+            ammo--;
             shootingClock.restart();
         }
     }
 
 };
+
+#endif // PLAYER_HPP

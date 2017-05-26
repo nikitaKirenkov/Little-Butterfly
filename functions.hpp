@@ -6,6 +6,8 @@
 
 using namespace std;
 
+const double PI = atan(1) * 4;
+
 int randomNumber(int from, int to)
 {
     return from + rand() % (to - from + 1);

@@ -49,6 +49,7 @@ int main()
     Text FPSCounter;
     FPSCounter.setFont(font);
     FPSCounter.setFillColor(Color::Red);
+    FPSCounter.setString("FPS: 0");
     FPSCounter.setPosition(10, 10);
 
     Text pauseText;
@@ -56,6 +57,13 @@ int main()
     pauseText.setFillColor(Color::Red);
     pauseText.setString("PAUSE");
     pauseText.setPosition(windowWidth / 2 - pauseText.getCharacterSize() * 2, windowHeight / 2);
+
+    Text playerStatsCount;
+    playerStatsCount.setFont(font);
+    playerStatsCount.setFillColor(Color::Red);
+    playerStatsCount.setString("AMMO: 100 HEALTH: 100");
+    playerStatsCount.setCharacterSize(24);
+    playerStatsCount.setPosition(windowWidth / 2 - playerStatsCount.getCharacterSize() * 7, windowHeight - windowHeight / 20);
 
     Image starsImage;
     starsImage.loadFromFile("images/stars.png");
@@ -65,8 +73,11 @@ int main()
     playerImage.loadFromFile("images/player.png");
     Player player(playerImage, 7, 0.6, window);
 
-    list <Missile*> missiles;
-    list <Missile*>::iterator missilesIt;
+    list <Missile*> playerMissiles;
+    list <Missile*>::iterator playerMissilesIt;
+
+    list <Missile*> enemyMissiles;
+    list <Missile*>::iterator enemyMissilesIt;
 
     list <Enemy*> enemies;
     list <Enemy*>::iterator enemiesIt;
@@ -99,20 +110,6 @@ int main()
         {
             window.clear();
             background.update(mainTime);
-            for (missilesIt = missiles.begin(); missilesIt != missiles.end();)
-            {
-                (*missilesIt)->update(mainTime);
-                if (!(*missilesIt)->isAlive) missilesIt = missiles.erase(missilesIt);
-                else missilesIt++;
-            }
-            for (enemiesIt = enemies.begin(); enemiesIt != enemies.end();)
-            {
-                (*enemiesIt)->update(mainTime, missiles, missilesIt);
-                if (!(*enemiesIt)->isAlive) enemiesIt = enemies.erase(enemiesIt);
-                else enemiesIt++;
-            }
-            player.update(mainTime, missiles);
-
             if (FPSCounterEnabled)
             {
                 FPS++;
@@ -124,6 +121,29 @@ int main()
                 }
                 window.draw(FPSCounter);
             }
+            playerStatsCount.setString("AMMO: " + intToString(player.ammo) + " HEALTH: " + intToString(player.health));
+            window.draw(playerStatsCount);
+            for (enemiesIt = enemies.begin(); enemiesIt != enemies.end();)
+            {
+                (*enemiesIt)->update(mainTime, player, enemyMissiles, playerMissiles, playerMissilesIt);
+                if (!(*enemiesIt)->isAlive) enemiesIt = enemies.erase(enemiesIt);
+                else enemiesIt++;
+            }
+            for (playerMissilesIt = playerMissiles.begin(); playerMissilesIt != playerMissiles.end();)
+            {
+                (*playerMissilesIt)->update(mainTime);
+                if (!(*playerMissilesIt)->isAlive) playerMissilesIt = playerMissiles.erase(playerMissilesIt);
+                else playerMissilesIt++;
+            }
+            for (enemyMissilesIt = enemyMissiles.begin(); enemyMissilesIt != enemyMissiles.end();)
+            {
+                (*enemyMissilesIt)->update(mainTime);
+                if (!(*enemyMissilesIt)->isAlive) enemyMissilesIt = enemyMissiles.erase(enemyMissilesIt);
+                else enemyMissilesIt++;
+            }
+            player.update(mainTime, playerMissiles, enemyMissiles, enemyMissilesIt);
+
+
             window.display();
         }
     }

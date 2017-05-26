@@ -8,14 +8,18 @@ class Missile
 {
     Texture texture;
     Sprite sprite;
-    float speed;
-    float x, y, width, height, scale = 0.4;
+    float scale, xSpeed, ySpeed;
+    float x, y, width, height;
     RenderWindow &window;
+    int windowWidth, windowHeight;
 
 public:
 int damage;
-    Missile(Image &image, float Speed, int Damage, float X, float Y, RenderWindow &Window) : speed(Speed), x(X), y(Y), window(Window)
+    Missile(Image &image, float Scale, float XSpeed, float YSpeed, int Damage, float X, float Y, RenderWindow &Window)
+    : scale(Scale), xSpeed(XSpeed), ySpeed(YSpeed), x(X), y(Y), window(Window)
     {
+        windowWidth = window.getSize().x;
+        windowHeight = window.getSize().y;
         damage = Damage;
         texture.loadFromImage(image);
         sprite.setTexture(texture);
@@ -29,9 +33,10 @@ int damage;
 
     void update(float &mainTime)
     {
-        sprite.move(0, -speed * mainTime);
-        y -= speed * mainTime;
-        if (y < 0) isAlive = false;
+        sprite.move(xSpeed * mainTime, ySpeed * mainTime);
+        x += xSpeed * mainTime;
+        y += ySpeed * mainTime;
+        if (y < 0 || y > windowHeight || x < 0 || x > windowWidth) isAlive = false;
         window.draw(sprite);
     }
 
